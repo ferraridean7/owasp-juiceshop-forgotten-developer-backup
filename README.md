@@ -137,6 +137,13 @@ To maintain continuous ISMS oversight, this technical finding and its correspond
 * **Framework**: ISO/IEC 27001:2022 (Annex A.8.28 & A.8.8)
 * **Status**: Remediated / Verified via Static Analysis & Route Verification
 
+### Mapped Controls & Verification Evidence:
+
+- **A.8.28 - Secure Coding**: Evaluates path traversal vulnerability and input validation mechanisms within application source code.
+  ![A.8.28 Secure Coding](forgotten_backup/A.8.28.png)
+
+- **A.8.8 - Management of Technical Vulnerabilities**: Assesses handling and exposure risks of sensitive configuration backup files.
+  ![A.8.8 Vulnerability Management](forgotten_backup/A.8.8.png)
 ---
 
 ## About the Author
