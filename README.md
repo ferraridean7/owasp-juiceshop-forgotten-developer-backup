@@ -58,15 +58,15 @@ The primary objective of this documentation is to analyze the mechanics of bypas
 
 3. **Execution Evidence (Visual Proofs)**:
 
-   * **Poison Null Byte Retrieval**:  
+   * **Null Byte curl Request Execution**:  
      Successful retrieval of `package.json.bak` via `curl --path-as-is` command.  
      ![Baseline State](./forgotten_backup/curl_as_path.png)
 
-   * **Sensitive Asset Content Inspection (Part 1)**:  
+   * **Exposed package.json.bak Content**:  
      Inspection of project metadata, author info, and contributors using `cat`.  
      ![Baseline State](./forgotten_backup/file.png)
 
-   * **Sensitive Asset Content Inspection (Part 2 - Dependency Map)**:  
+   * **Sensitive Asset Content Inspection (Dependency Map)**:  
      Full exposure of internal software dependencies and version numbers.  
      ![Baseline State](./forgotten_backup/dependencies.png)
 
@@ -91,10 +91,24 @@ Automated build pipelines must sanitize workspace directories before building pr
 * Add `.bak`, `.old`, `.swp`, and `package.json.bak` to `.gitignore` and `.dockerignore`.
 * Implement a pre-build script command: `find . -type f \( -name "*.bak" -o -name "*.old" \) -delete`.
 
-### 5.3 Automated Security Controls (CI/CD Integration)
-* **Secret & Artifact Scanning**: Integrate **TruffleHog** or **GitGuardian** in GitHub Actions to flag accidental commits of backup extensions (`.bak`, `.kdbx`).
-* **Static Application Security Testing (SAST)**: Enforce **Semgrep** rules detecting unmanaged `express.static` parameters.
+### 5.3 Automated Security Controls & Repository Linters (CI/CD Integration)
 
+To prevent the introduction of unmanaged backup artifacts and ensure proactive alignment with **ISO/IEC 27001:2022 Annex A.8.9** and **NIST CSF v2.0 PR.DS-01**, automated validation checks must be enforced across two distinct layers:
+
+1. **Repository Linters & Pre-Commit Hooks (Artifact Prevention)**:
+   * Implement local `pre-commit` hooks or lightweight CI validation scripts to enforce block rules that immediately reject commits or pull requests containing forbidden backup or temporary file extensions (`.bak`, `.old`, `.swp`).
+   * *Example CI Enforcement Script*:
+     ```bash
+     # Block commit if backup/old extensions are detected in staging area
+     if git diff --cached --name-only | grep -E '\.(bak|old|swp)$'; then
+         echo "[ERROR] Security Policy Violation: Backup files (.bak, .old) are prohibited in repository."
+         exit 1
+     fi
+     ```
+
+2. **Secret Scanning Integration (Content Analysis)**:
+   * Utilize specialized **Secret Scanners** (such as **TruffleHog** or **GitGuardian**) integrated into the GitHub Actions pipeline. 
+   * *Purpose*: While file linters handle extension block rules, TruffleHog/GitGuardian are deployed specifically to scan the *internal contents* of any legacy or configuration files for accidentally hardcoded staging database credentials, API tokens, or encryption keys.
 ---
 
 ## 6. Security Response Plan (SRP) - Operational Incident Handling Procedures
